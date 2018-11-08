@@ -93,7 +93,7 @@
           <includeTestClasses>false</includeTestClasses>
           <transformerClasses>
             <transformerClass>
-              <className>com.ntnx.springmvc.transformer.JaxrsToSpringMvcTransformer</className>
+              <className>com.github.krr.springmvc.transformer.JaxrsToSpringMvcTransformer</className>
               <!--<properties>-->
                 <!--<property>-->
                   <!--<name>append.value</name>-->
