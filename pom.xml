@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <artifactId>jaxrs-springmvc-transformer</artifactId>
+  <groupId>com.github.krraghavan</groupId>
+  <version>1.0.0.SNAPSHOT</version>
+
+  <modelVersion>4.0.0</modelVersion>
+  <name>Transformer to convert JAXRS classes to Spring MVC</name>
+
+  <properties>
+    <javassist-maven-plugin.version>1.1.0</javassist-maven-plugin.version>
+    <spring-security.version>5.1.1.RELEASE</spring-security.version>
+    <lombok.version>1.18.4</lombok.version>
+    <jackson-version>2.9.7</jackson-version>
+  </properties>
+
+  <dependencies>
+    <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson-version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>6.14.3</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.ws.rs</groupId>
+      <artifactId>javax.ws.rs-api</artifactId>
+      <version>2.1.1</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.javassist</groupId>
+      <artifactId>javassist</artifactId>
+      <version>3.24.0-GA</version>
+    </dependency>
+    <dependency>
+      <groupId>de.icongmbh.oss.maven.plugins</groupId>
+      <artifactId>javassist-maven-plugin</artifactId>
+      <version>${javassist-maven-plugin.version}</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>slf4j-simple</artifactId>
+          <groupId>org.slf4j</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-web</artifactId>
+      <version>${spring-security.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <version>${spring-security.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+      <version>2.11.1</version>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>de.icongmbh.oss.maven.plugins</groupId>
+        <artifactId>javassist-maven-plugin</artifactId>
+        <version>${javassist-maven-plugin.version}</version>
+        <configuration>
+          <includeTestClasses>false</includeTestClasses>
+          <transformerClasses>
+            <transformerClass>
+              <className>com.ntnx.springmvc.transformer.JaxrsToSpringMvcTransformer</className>
+              <!--<properties>-->
+                <!--<property>-->
+                  <!--<name>append.value</name>-->
+                  <!--<value>and ToStringTransformer</value>-->
+                <!--</property>-->
+              <!--</properties>-->
+            </transformerClass>
+          </transformerClasses>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>process-test-classes</phase>
+            <goals>
+              <goal>javassist</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
