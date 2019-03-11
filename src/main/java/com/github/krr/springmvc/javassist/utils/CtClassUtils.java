@@ -104,6 +104,22 @@ public class CtClassUtils {
     return intfAnnotation;
   }
 
+  public static CtAnnotation findAnnotationOnMethod(CtMethod m, Class ma)
+      throws ClassNotFoundException, NotFoundException {
+
+    return findAnnotationOnMethod(m, ma, null);
+  }
+
+  public static CtAnnotation findAnnotationOnMethod(CtMethod m, Class ma,
+                                                    List<String> packagesToInclude) throws ClassNotFoundException {
+    log.trace("Finding method annotations on method or its superclass");
+    Object jaAnnotation = m.getAnnotation(ma);
+    if (jaAnnotation != null) {
+      return new CtAnnotation(m.getDeclaringClass(), m, (Annotation) jaAnnotation);
+    }
+    return null;
+  }
+
   /**
    * Overloaded method that searches all packages.
    */
@@ -114,7 +130,7 @@ public class CtClassUtils {
     return findAnnotationInInterfaces(ctClass, annotationClass, null);
   }
 
-  private static boolean isInIncludedPackageOrSubpackage(List<String> packagesToInclude, String packageName) {
+  public static boolean isInIncludedPackageOrSubpackage(List<String> packagesToInclude, String packageName) {
     if (CollectionUtils.isEmpty(packagesToInclude)) {
       return true;
     }
@@ -126,61 +142,4 @@ public class CtClassUtils {
     return false;
   }
 
-  public static <T extends Annotation> CtAnnotation findAnnotationOnMethod(CtMethod m,
-                                                                           Class<T> ma,
-                                                                           List<String> packagesToInclude)
-      throws ClassNotFoundException, NotFoundException {
-    log.trace("Finding method annotations on method or its superclass");
-    Object jaAnnotation = m.getAnnotation(ma);
-    if (jaAnnotation == null) {
-      // not found here - search in super class
-      CtClass superClass = m.getDeclaringClass().getSuperclass();
-      // we don't filter by included package here because we want to determine whether the superclass holds the
-      // annotation or not.  Only the original class is expected to be in the search path.
-      if (superClass != null) {
-        log.trace("Annotation {} not found in method {}, searching in superclass method", m.getName(),
-                  superClass.getName());
-        // find in superclass.
-        CtMethod superclassMethod = superClass.getMethod(m.getName(), m.getSignature());
-        if (superclassMethod != null) {
-          CtAnnotation superAnnotation = findAnnotationOnMethod(superclassMethod, ma, null);
-          if (superAnnotation == null) {
-            // none of the super classes have this ctAnnotation - check the interfaces
-            log.trace("Annotation {} not found on class - searching interfaces of {}", ma, superClass.getName());
-            return findAnnotationInInterfaces(superClass, m.getName(), m.getSignature(), ma, null);
-          }
-          return superAnnotation;
-        }
-        else {
-          // method doesn't exist in the super class - check interfaces of super class
-          return findAnnotationInInterfaces(superClass, m.getName(), m.getSignature(), ma, null);
-        }
-      }
-    }
-    else {
-      // annotations not in this class - check interfaces of this class.
-      return findAnnotationInInterfaces(m.getDeclaringClass(), m.getName(), m.getSignature(), ma, packagesToInclude);
-    }
-    return null;
-  }
-
-  @SuppressWarnings("SameParameterValue")
-  private static <T extends Annotation> CtAnnotation findAnnotationInInterfaces(CtClass ctClass, String methodName,
-                                                                                String methodDescriptor,
-                                                                                Class<T> ma,
-                                                                                List<String> packagesToInclude)
-      throws NotFoundException, ClassNotFoundException {
-
-    CtClass[] interfaces = ctClass.getInterfaces();
-
-    CtAnnotation intfAnnotation = null;
-    for (CtClass intf : interfaces) {
-      CtMethod method = intf.getMethod(methodName, methodDescriptor);
-      intfAnnotation = findAnnotationOnMethod(method, ma, packagesToInclude);
-      if (intfAnnotation != null) {
-        break;
-      }
-    }
-    return intfAnnotation;
-  }
 }
